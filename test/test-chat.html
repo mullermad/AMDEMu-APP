@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Tester</title>
+    <!-- Load the Socket.io client library -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+    <h1>Chat Tester</h1>
+    <button onclick="connect()">1. Connect</button>
+    <button onclick="joinRoom()">2. Join Room</button>
+    <button onclick="sendMessage()">3. Send Message</button>
+    
+    <div id="logs" style="background: #eee; padding: 10px; margin-top: 20px; font-family: monospace;">
+        <p>Logs will appear here...</p>
+    </div>
+
+    <script>
+        let socket;
+        const myId = "ZN2qwLvILGYjEbJ8M4tSOgNZY1KhH5RR"; // Your ID from earlier
+        const friendId = "4jBMByTKCO3G3nGVpYzgUx8GEXAIcKzc"; // Muluken's ID
+
+        function log(msg) {
+            const div = document.getElementById('logs');
+            div.innerHTML += `<p>> ${msg}</p>`;
+        }
+
+        function connect() {
+            // Connect to your NestJS server
+            socket = io("http://localhost:8000");
+
+            socket.on("connect", () => {
+                log("Connected to Server! ID: " + socket.id);
+            });
+
+            // Listen for new messages
+            socket.on("receive_message", (data) => {
+                log(`New Message from ${data.senderId}: ${data.content}`);
+            });
+        }
+
+        function joinRoom() {
+            socket.emit("join", myId);
+            log("Joined room: " + myId);
+        }
+
+        function sendMessage() {
+            const payload = {
+                senderId: myId,
+                receiverId: friendId,
+                content: "Hello from the test file!"
+            };
+            socket.emit("send_message", payload);
+            log("Message sent!");
+        }
+    </script>
+</body>
+</html>

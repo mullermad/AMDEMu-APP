@@ -7,16 +7,31 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// --- AUTHENTICATION (Better Auth Compatible) ---
+
 model User {
-  id            String    @id @default(cuid())
+  id            String   @id @default(cuid())
   name          String
-  email         String    @unique
+  email         String   @unique
   emailVerified Boolean
   image         String?
-  createdAt     DateTime
-  updatedAt     DateTime
-  sessions      Session[]
-  accounts      Account[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Better Auth Relations
+  sessions Session[]
+  accounts Account[]
+  comments Comment[]
+
+  // Social Relations
+  posts            Post[]
+  likes            Like[]
+  sentRequests     Friendship[] @relation("sentRequests")
+  receivedRequests Friendship[] @relation("receivedRequests")
+
+  // Chat Relations
+  sentMessages     Message[] @relation("sentMessages")
+  receivedMessages Message[] @relation("receivedMessages")
 
   @@map("user")
 }
@@ -66,19 +81,72 @@ model Verification {
   @@map("verification")
 }
 
-// Your existing models
-model Friend {
-  id          String   @id @default(cuid())
-  requesterId String
-  receiverId  String
-  status      String   @default("pending")
-  createdAt   DateTime @default(now())
-}
+// --- SOCIAL FEATURES (Friends, Posts, Likes) ---
 
-model Message {
+model Friendship {
   id         String   @id @default(cuid())
   senderId   String
   receiverId String
-  content    String
+  status     String   @default("PENDING") // PENDING, ACCEPTED, REJECTED
   createdAt  DateTime @default(now())
+
+  sender   User @relation("sentRequests", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver User @relation("receivedRequests", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverId])
+  @@map("friendship")
+}
+
+model Post {
+  id       String    @id @default(cuid())
+  content  String    @db.Text
+  image    String?
+  authorId String
+  author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  likes    Like[]
+  comments Comment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("post")
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  postId    String
+  authorId  String
+  createdAt DateTime @default(now())
+
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@map("comment")
+}
+
+model Like {
+  id     String @id @default(cuid())
+  userId String
+  postId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId]) // Prevents multiple likes on the same post
+  @@map("like")
+}
+
+// --- REAL-TIME CHAT ---
+
+model Message {
+  id         String   @id @default(cuid())
+  content    String   @db.Text
+  senderId   String
+  receiverId String
+  createdAt  DateTime @default(now())
+
+  sender   User @relation("sentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver User @relation("receivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@map("message")
 }

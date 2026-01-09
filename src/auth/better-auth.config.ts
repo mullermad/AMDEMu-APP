@@ -9,7 +9,7 @@ export const auth = betterAuth({
     provider: 'postgresql',
   }),
   trustedOrigins: ['http://localhost:3000', 'http://localhost:3001'], // Add your testing origins here
-  baseURL: 'http://localhost:3000',
+  baseURL: 'http://localhost:8000',
   emailAndPassword: {
     enabled: true, // This handles your email/pass signup & login
   },
