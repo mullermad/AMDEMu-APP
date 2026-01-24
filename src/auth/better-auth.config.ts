@@ -9,7 +9,7 @@ export const auth = betterAuth({
     provider: 'postgresql',
   }),
   // FIX 1: Use Environment Variable for baseURL so it doesn't default to localhost on Render
-  baseURL: process.env.BETTER_AUTH_URL ,
+  baseURL: process.env.BETTER_AUTH_URL,
 
   // FIX 2: Add secret (Required for production)
   secret: process.env.BETTER_AUTH_SECRET as string,
@@ -30,8 +30,9 @@ export const auth = betterAuth({
     },
   },
   advanced: {
-    useSecureCookies: process.env.NODE_ENV === 'production',
-    // This helps cookies travel between your Render backend and Vercel frontend
-    crossSubdomainCookies: true,
+    // CRITICAL: This allows cookies to travel from Render to Vercel
+    useSecureCookies: true,
+    // This handles the "state_mismatch" by allowing cross-site cookies
+    sameSite: 'none',
   },
 });
