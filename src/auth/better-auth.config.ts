@@ -13,11 +13,7 @@ export const auth = betterAuth({
 
   // FIX 2: Add secret (Required for production)
   secret: process.env.BETTER_AUTH_SECRET as string,
-  trustedOrigins: [
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'https://am-de-mu-frontend.vercel.app',
-  ], // Add your testing origins here
+ // Add your testing origins here
   emailAndPassword: {
     enabled: true, // This handles your email/pass signup & login
   },
@@ -30,16 +26,12 @@ export const auth = betterAuth({
     },
   },
   advanced: {
-    // CRITICAL: This allows cookies to travel from Render to Vercel
     useSecureCookies: true,
-    // This handles the "state_mismatch" by allowing cross-site cookies
     sameSite: 'none',
   },
-  errorURL: 'https://am-de-mu-frontend.vercel.app/login',
-  // 🔥 THIS LINE FIXES EVERYTHING
-  callbacks: {
-    async redirect() {
-      return 'https://am-de-mu-frontend.vercel.app';
-    },
-  },
+
+  trustedOrigins: [
+    'https://am-de-mu-frontend.vercel.app',
+    'http://localhost:3000',
+  ],
 });
