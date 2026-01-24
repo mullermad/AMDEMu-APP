@@ -9,10 +9,10 @@ export const auth = betterAuth({
     provider: 'postgresql',
   }),
   // FIX 1: Use Environment Variable for baseURL so it doesn't default to localhost on Render
-  baseURL: process.env.BETTER_AUTH_URL 
+  baseURL: process.env.BETTER_AUTH_URL ,
 
   // FIX 2: Add secret (Required for production)
-  secret: process.env.BETTER_AUTH_SECRET,
+  secret: process.env.BETTER_AUTH_SECRET as string,
   trustedOrigins: [
     'http://localhost:3000',
     'http://localhost:3001',
