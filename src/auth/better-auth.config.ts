@@ -35,4 +35,5 @@ export const auth = betterAuth({
     // This handles the "state_mismatch" by allowing cross-site cookies
     sameSite: 'none',
   },
+  errorURL: 'https://am-de-mu-frontend.vercel.app/login',
 });
