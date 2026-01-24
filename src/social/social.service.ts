@@ -60,8 +60,10 @@ export class SocialService {
   }
 
   // 3. Get Friends List
+  // nestjs-backend/src/social/social.service.ts
+
   async getFriends(userId: string) {
-    const friends = await this.prisma.friendship.findMany({
+    return this.prisma.friendship.findMany({
       where: {
         OR: [
           { senderId: userId, status: 'ACCEPTED' },
@@ -69,20 +71,21 @@ export class SocialService {
         ],
       },
       include: {
-        sender: { select: { id: true, name: true, image: true } },
-        receiver: { select: { id: true, name: true, image: true } },
+        sender: true, // Critical
+        receiver: true, // Critical
       },
     });
-
-    // Map the result so it returns the 'other' person, not the friendship record
-    return friends.map((f) => (f.senderId === userId ? f.receiver : f.sender));
   }
 
-  // 4. Get Pending Requests (To show on notifications)
   async getPendingRequests(userId: string) {
     return this.prisma.friendship.findMany({
-      where: { receiverId: userId, status: 'PENDING' },
-      include: { sender: { select: { id: true, name: true, image: true } } },
+      where: {
+        receiverId: userId, // Requests sent TO me
+        status: 'PENDING',
+      },
+      include: {
+        sender: true, // Show who is asking to be my friend
+      },
     });
   }
 }

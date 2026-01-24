@@ -1,3 +1,4 @@
+// nestjs-backend/src/chat/chat.service.ts
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -5,7 +6,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class ChatService {
   constructor(private prisma: PrismaService) {}
 
-  // Save message to DB
   async saveMessage(senderId: string, receiverId: string, content: string) {
     return this.prisma.message.create({
       data: {
@@ -14,33 +14,25 @@ export class ChatService {
         content,
       },
       include: {
-        sender: { select: { name: true, image: true } },
+        sender: { select: { id: true, name: true, image: true } },
       },
     });
   }
 
-  // Get chat history between two users
-  async getMessages(userA: string, userB: string) {
-    return this.prisma.message.findMany({
-      where: {
-        OR: [
-          { senderId: userA, receiverId: userB },
-          { senderId: userB, receiverId: userA },
-        ],
-      },
-      orderBy: { createdAt: 'asc' },
-    });
-  }
+  // Use this for history to ensure you see messages from both sides
   async getChatHistory(userA: string, userB: string) {
     return this.prisma.message.findMany({
       where: {
         OR: [
+          // Case 1: You sent, Friend received
           { senderId: userA, receiverId: userB },
+          // Case 2: Friend sent, You received
           { senderId: userB, receiverId: userA },
         ],
       },
-      orderBy: { createdAt: 'asc' },
-      take: 50, // Load last 50 messages
+      orderBy: {
+        createdAt: 'asc', // Oldest first, newest at the bottom
+      },
     });
   }
 }
