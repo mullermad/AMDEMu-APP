@@ -36,4 +36,10 @@ export const auth = betterAuth({
     sameSite: 'none',
   },
   errorURL: 'https://am-de-mu-frontend.vercel.app/login',
+  // 🔥 THIS LINE FIXES EVERYTHING
+  callbacks: {
+    async redirect() {
+      return 'https://am-de-mu-frontend.vercel.app';
+    },
+  },
 });
