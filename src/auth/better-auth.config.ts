@@ -13,7 +13,7 @@ export const auth = betterAuth({
 
   // FIX 2: Add secret (Required for production)
   secret: process.env.BETTER_AUTH_SECRET as string,
- // Add your testing origins here
+  // Add your testing origins here
   emailAndPassword: {
     enabled: true, // This handles your email/pass signup & login
   },
@@ -25,9 +25,10 @@ export const auth = betterAuth({
       prompt: 'select_account consent',
     },
   },
-  advanced: {
-    useSecureCookies: true,
+  cookie: {
+    secure: true, // REQUIRED for HTTPS
     sameSite: 'none',
+    path: '/', // REQUIRED for cross-domain
   },
 
   trustedOrigins: [
