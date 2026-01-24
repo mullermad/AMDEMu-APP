@@ -8,8 +8,16 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: 'postgresql',
   }),
-  trustedOrigins: ['http://localhost:3000', 'http://localhost:3001'], // Add your testing origins here
-  baseURL: 'http://localhost:8000',
+  // FIX 1: Use Environment Variable for baseURL so it doesn't default to localhost on Render
+  baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:8000',
+
+  // FIX 2: Add secret (Required for production)
+  secret: process.env.BETTER_AUTH_SECRET,
+  trustedOrigins: [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'https://am-de-mu-frontend.vercel.app',
+  ], // Add your testing origins here
   emailAndPassword: {
     enabled: true, // This handles your email/pass signup & login
   },
@@ -20,5 +28,10 @@ export const auth = betterAuth({
       accessType: 'offline',
       prompt: 'select_account consent',
     },
+  },
+  advanced: {
+    useSecureCookies: process.env.NODE_ENV === 'production',
+    // This helps cookies travel between your Render backend and Vercel frontend
+    crossSubdomainCookies: true,
   },
 });
